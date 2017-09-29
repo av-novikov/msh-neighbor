@@ -15,7 +15,6 @@ namespace mshreader
 		std::string buf;
 		std::string x, y, z;
 		std::string::size_type sz;
-		grid::Mesh* mesh;
 		std::vector<elem::Element> border_elems;
 		int vertInds[elem::MAX_ELEM_NEBR_SIZE];
 
@@ -33,6 +32,7 @@ namespace mshreader
 		~MshReader();
 
 		const grid::Mesh* read(const std::string filename);
+		void write(const grid::Mesh* mesh, const std::string filename);
 	};
 };
 
