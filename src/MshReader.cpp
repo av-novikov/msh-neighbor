@@ -17,7 +17,7 @@ const grid::Mesh* MshReader::read(const string filename)
 
 	// Trash
 	do
-	msh >> buf;
+		msh >> buf;
 	while (buf != NODES_BEGIN);
 	// Number of nodes
 	msh >> mesh->pts_size;
@@ -33,7 +33,7 @@ const grid::Mesh* MshReader::read(const string filename)
 
 	// Trash
 	do
-	msh >> buf;
+		msh >> buf;
 	while (buf != ELEMS_BEGIN);
 	// Elements
 	msh >> buf;
@@ -42,7 +42,12 @@ const grid::Mesh* MshReader::read(const string filename)
 	{
 		auto readElem = [&, this](const elem::EType type, bool isInner)
 		{
-			msh >> buf;	msh >> buf;	msh >> buf;
+			bool isFrac = false;
+			msh >> buf;	msh >> buf;
+			if (buf == FRAC_REGION)
+				isFrac = true;
+			msh >> buf;
+
 			for (int i = 0; i < elem::num_of_verts(type); i++)
 			{
 				msh >> vertInds[i];
@@ -52,7 +57,12 @@ const grid::Mesh* MshReader::read(const string filename)
 			if (isInner)
 				mesh->elems.push_back(elem::Element(type, vertInds));
 			else
-				border_elems.push_back(elem::Element(type, vertInds));
+			{
+				if (isFrac)
+					frac_elems.push_back(elem::Element(elem::EType::FRAC_QUAD, vertInds));
+				else
+					border_elems.push_back(elem::Element(type, vertInds));
+			}
 		};
 
 		msh >> buf;
@@ -67,48 +77,23 @@ const grid::Mesh* MshReader::read(const string filename)
 
 	msh.close();
 
-	// border filtering
-	int num_found;
-	vector<bool> marked(border_elems.size(), false);
-	for (int i = 0; i < border_elems.size(); i++)
-	{
-		num_found = 0;
-		const auto& el = border_elems[i];
-		if (el.type == elem::EType::BORDER_QUAD)
-			for (const auto& el_nebr : mesh->elems)
-			{
-					auto find_in_verts4 = [&](int v1, int v2, int v3, int v4) -> bool
-					{
-						bool b1, b2, b3, b4;
-						b1 = b2 = b3 = b4 = false;
-						for (int j = 0; j < el_nebr.verts_num; j++)
-						{
-							if (!b1) if (v1 == el_nebr.verts[j]) { b1 = true; continue; }
-							if (!b2) if (v2 == el_nebr.verts[j]) { b2 = true; continue; }
-							if (!b3) if (v3 == el_nebr.verts[j]) { b3 = true; continue; }
-							if (!b4) if (v4 == el_nebr.verts[j]) { b4 = true; continue; }
-						}
-						return b1 * b2 * b3 * b4;
-					};
-					if (find_in_verts4(el.verts[0], el.verts[1], el.verts[2], el.verts[3])) num_found++;
-			}
-		if (num_found > 1)
-			marked[i] = true;
-		else if (num_found > 2)
-			exit(-1);
-	}
-
 	mesh->inner_size = mesh->elems.size();
+	mesh->frac_size = frac_elems.size();
+	mesh->border_size = border_elems.size();
 
-	for (int i = 0; i < border_elems.size(); i++)
+	for (const auto& el : border_elems)
+		mesh->elems.push_back(el);
+	for (auto& el : frac_elems)
 	{
-		if(!marked[i])
-			mesh->elems.push_back(border_elems[i]);
+		el.nebrs_num = 2;
+		mesh->elems.push_back(el);
 	}
-	mesh->border_size = mesh->elems.size() - mesh->inner_size;
 
 	for (int i = 0; i < mesh->elems.size(); i++)
 		mesh->elems[i].num = i;
+
+	border_elems.clear();
+	frac_elems.clear();
 
 	return mesh;
 }

@@ -14,13 +14,13 @@ namespace elem
 	static const int QUAD_VERT_SIZE = 4;
 	static const int TRI_VERT_SIZE = 3;
 
-	enum EType { BORDER_TRI, BORDER_QUAD, PRISM, HEX};
+	enum EType { BORDER_TRI, BORDER_QUAD, FRAC_QUAD, PRISM, HEX};
 
 	inline const int num_of_verts(const EType type)
 	{
 		if (type == EType::BORDER_TRI)
 			return 3;
-		else if (type == EType::BORDER_QUAD)
+		else if (type == EType::BORDER_QUAD || type == EType::FRAC_QUAD)
 			return 4;
 		else if (type == EType::PRISM)
 			return 6;
@@ -31,6 +31,8 @@ namespace elem
 	{
 		if (type == EType::BORDER_TRI || type == EType::BORDER_QUAD)
 			return 1;
+		else if (type == EType::FRAC_QUAD)
+			return 2;
 		else if (type == EType::PRISM)
 			return 5;
 		else if (type == EType::HEX)
@@ -81,7 +83,7 @@ namespace grid
 	{
 		friend class mshreader::MshReader;
 	protected:
-		int inner_size, border_size, pts_size;
+		int inner_size, border_size, frac_size, pts_size;
 		std::vector<point::Point> pts;
 		std::vector<elem::Element> elems;
 

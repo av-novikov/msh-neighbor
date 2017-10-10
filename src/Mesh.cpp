@@ -42,30 +42,12 @@ void Mesh::set_neighbors()
 						}
 						return b1 * b2 * b3 * b4;
 					};
-					if (!b[0]) 
-						if (find_in_verts4(el.verts[0], el.verts[1], el.verts[2], el.verts[3])) 
-							{ 
-							el.nebrs[0].id = el_nebr.num; b[0] = true; };
-					if (!b[1]) 
-						if (find_in_verts4(el.verts[4], el.verts[5], el.verts[6], el.verts[7])) 
-							{ 
-							el.nebrs[1].id = el_nebr.num; b[1] = true; };
-					if (!b[2]) 
-						if (find_in_verts4(el.verts[0], el.verts[1], el.verts[5], el.verts[4])) 
-							{ 
-							el.nebrs[2].id = el_nebr.num; b[2] = true; };
-					if (!b[3]) 
-						if (find_in_verts4(el.verts[1], el.verts[2], el.verts[6], el.verts[5])) 
-							{ 
-							el.nebrs[3].id = el_nebr.num; b[3] = true; };
-					if (!b[4]) 
-						if (find_in_verts4(el.verts[2], el.verts[3], el.verts[7], el.verts[6])) 
-							{ 
-							el.nebrs[4].id = el_nebr.num; b[4] = true; };
-					if (!b[5]) 
-						if (find_in_verts4(el.verts[3], el.verts[0], el.verts[4], el.verts[7])) 
-							{ 
-							el.nebrs[5].id = el_nebr.num; b[5] = true; };
+					if (!b[0]) if (find_in_verts4(el.verts[0], el.verts[1], el.verts[2], el.verts[3])) { el.nebrs[0].id = el_nebr.num; /*b[0] = true;*/ };
+					if (!b[1]) if (find_in_verts4(el.verts[4], el.verts[5], el.verts[6], el.verts[7])) { el.nebrs[1].id = el_nebr.num; /*b[1] = true;*/ };
+					if (!b[2]) if (find_in_verts4(el.verts[0], el.verts[1], el.verts[5], el.verts[4])) { el.nebrs[2].id = el_nebr.num; /*b[2] = true;*/ };
+					if (!b[3]) if (find_in_verts4(el.verts[1], el.verts[2], el.verts[6], el.verts[5])) { el.nebrs[3].id = el_nebr.num; /*b[3] = true;*/ };
+					if (!b[4]) if (find_in_verts4(el.verts[2], el.verts[3], el.verts[7], el.verts[6])) { el.nebrs[4].id = el_nebr.num; /*b[4] = true;*/ };
+					if (!b[5]) if (find_in_verts4(el.verts[3], el.verts[0], el.verts[4], el.verts[7])) { el.nebrs[5].id = el_nebr.num; /*b[5] = true;*/ };
 				}
 			}
 		else if (el.type == elem::EType::PRISM)
@@ -108,11 +90,10 @@ void Mesh::set_neighbors()
 
 		for (int j = 0; j < el.nebrs_num; j++)
 			assert(el.nebrs[j].id >= 0 && el.nebrs[j].id < elems.size());
-
 	}
 
 	bool isFound;
-	for (int i = inner_size; i < elems.size(); i++)
+	for (int i = inner_size; i < inner_size + border_size; i++)
 	{
 		isFound = false;
 		auto& el = elems[i];
@@ -126,6 +107,29 @@ void Mesh::set_neighbors()
 					el.nebrs[0].id = el_nebr.num;
 					isFound = true;
 					break;
+				}
+			}
+			if (isFound) break;
+		}
+	}
+	int nebrs_found;
+	for (int i = inner_size + border_size; i < elems.size(); i++)
+	{
+		nebrs_found = 0;	isFound = false;
+		auto& el = elems[i];
+		for (int j = 0; j < inner_size; j++)
+		{
+			const auto& el_nebr = elems[j];
+			for (int k = 0; k < el_nebr.nebrs_num; k++)
+			{
+				if (el_nebr.nebrs[k].id == el.num)
+				{
+					el.nebrs[nebrs_found++].id = el_nebr.num;
+					if (nebrs_found > 1)
+					{
+						isFound = true;
+						break;
+					}
 				}
 			}
 			if (isFound) break;
