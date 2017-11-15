@@ -30,6 +30,7 @@ namespace mshreader
 
 		const std::string FRAC_REGION = "6";
 		const std::string BOUND_REGION = "7";
+		const std::string BORDER_HEX = "11";
 	protected:
 	public:
 		MshReader();

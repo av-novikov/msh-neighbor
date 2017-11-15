@@ -14,28 +14,28 @@ namespace elem
 	static const int QUAD_VERT_SIZE = 4;
 	static const int TRI_VERT_SIZE = 3;
 
-	enum EType { BORDER_TRI, BORDER_QUAD, FRAC_QUAD, PRISM, HEX};
+	enum EType { BORDER_TRI, BORDER_QUAD, FRAC_QUAD, PRISM, HEX, BORDER_HEX};
 
 	inline const int num_of_verts(const EType type)
 	{
-		if (type == EType::BORDER_TRI)
+		if (type == BORDER_TRI)
 			return 3;
-		else if (type == EType::BORDER_QUAD || type == EType::FRAC_QUAD)
+		else if (type == BORDER_QUAD || type == FRAC_QUAD)
 			return 4;
-		else if (type == EType::PRISM)
+		else if (type == PRISM)
 			return 6;
-		else if (type == EType::HEX)
+		else if (type == HEX || type == BORDER_HEX)
 			return 8;
 	}
 	inline const int num_of_nebrs(const EType type)
 	{
-		if (type == EType::BORDER_TRI || type == EType::BORDER_QUAD)
+		if (type == BORDER_TRI || type == BORDER_QUAD)
 			return 1;
-		else if (type == EType::FRAC_QUAD)
+		else if (type == FRAC_QUAD)
 			return 2;
-		else if (type == EType::PRISM)
+		else if (type == PRISM)
 			return 5;
-		else if (type == EType::HEX)
+		else if (type == HEX || type == BORDER_HEX)
 			return 6;
 	}
 

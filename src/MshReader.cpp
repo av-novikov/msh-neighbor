@@ -43,9 +43,12 @@ const grid::Mesh* MshReader::read(const string filename)
 		auto readElem = [&, this](const elem::EType type, bool isInner)
 		{
 			bool isFrac = false;
+			bool isBorder = false;
 			msh >> buf;	msh >> buf;
 			if (buf == FRAC_REGION)
 				isFrac = true;
+			if (buf == BORDER_HEX)
+				isBorder = true;
 			msh >> buf;
 
 			for (int i = 0; i < elem::num_of_verts(type); i++)
@@ -58,17 +61,23 @@ const grid::Mesh* MshReader::read(const string filename)
 				mesh->elems.push_back(elem::Element(type, vertInds));
 			else
 			{
-				if (isFrac)
-					frac_elems.push_back(elem::Element(elem::EType::FRAC_QUAD, vertInds));
-				else
-					border_elems.push_back(elem::Element(type, vertInds));
+				if(type == elem::BORDER_QUAD || type == elem::BORDER_TRI)
+					if (isFrac)
+						frac_elems.push_back(elem::Element(elem::FRAC_QUAD, vertInds));
+					else
+						border_elems.push_back(elem::Element(type, vertInds));
+				else if (type == elem::HEX)
+					if (isBorder)
+						mesh->elems.push_back(elem::Element(elem::BORDER_HEX, vertInds));
+					else
+						mesh->elems.push_back(elem::Element(type, vertInds));
 			}
 		};
 
 		msh >> buf;
 		if (buf == TRI_TYPE)		readElem(elem::EType::BORDER_TRI, false);
 		else if (buf == QUAD_TYPE)	readElem(elem::EType::BORDER_QUAD, false);
-		else if (buf == HEX_TYPE)	readElem(elem::EType::HEX, true);
+		else if (buf == HEX_TYPE)	readElem(elem::EType::HEX, false);
 		else if (buf == PRISM_TYPE)	readElem(elem::EType::PRISM, true);
 		else						getline(msh, buf);
 

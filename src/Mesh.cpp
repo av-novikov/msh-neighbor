@@ -24,7 +24,7 @@ void Mesh::set_neighbors()
 	{
 		bool b[6] = { false };
 		auto& el = elems[i];
-		if (el.type == elem::EType::HEX)
+		if (el.type == elem::HEX || el.type == elem::BORDER_HEX)
 			for (const auto& el_nebr : elems)
 			{
 				if (el_nebr.num != el.num)
