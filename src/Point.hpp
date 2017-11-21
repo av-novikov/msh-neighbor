@@ -2,12 +2,15 @@
 #define POINT_HPP_
 
 #include <cmath>
+#include <vector>
 #include <iostream>
 
 #define EQUALITY_TOLERANCE 1.E-9
 
 namespace point
 {
+	const int MAX_CELLS_IN_POINT = 15;
+
 	struct Point
 	{
 		union
@@ -18,6 +21,7 @@ namespace point
 				double x;	double y;	double z;
 			};
 		};
+		std::vector<int> cells;
 
 		Point() {};
 		Point(const double _x, const double _y, const double _z) : x(_x), y(_y), z(_z) { };

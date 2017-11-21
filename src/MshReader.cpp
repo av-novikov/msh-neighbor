@@ -114,7 +114,13 @@ void MshReader::write(const grid::Mesh* mesh, const std::string filename)
 	nebr << NODES_BEGIN << endl << mesh->pts_size << endl;
 	int counter = 0;
 	for (const auto& pt : mesh->pts)
-		nebr << counter++ << "\t" << pt.x << "\t" << pt.y << "\t" << pt.z << endl;
+	{
+		nebr << counter++ << "\t" << pt.x << "\t" << pt.y << "\t" << pt.z;
+		nebr << "\t" << pt.cells.size();
+		for (const auto& idx : pt.cells)
+			nebr << "\t" << idx;
+		nebr << endl;
+	}
 	nebr << NODES_END << endl << ELEMS_BEGIN << endl << mesh->elems.size() << endl;
 	for (const auto& el : mesh->elems)
 	{

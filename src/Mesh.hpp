@@ -47,7 +47,6 @@ namespace elem
 		point::Point cent;
 	};
 
-
 	class Element
 	{
 	public:
@@ -89,6 +88,7 @@ namespace grid
 
 		int check_neighbors() const;
 		void set_neighbors();
+		void set_point_cells();
 	public:
 		Mesh();
 		~Mesh();

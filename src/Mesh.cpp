@@ -14,6 +14,7 @@ Mesh::~Mesh()
 void Mesh::process_geometry()
 {
 	set_neighbors();
+	set_point_cells();
 	//int idx = check_neighbors();
 	//if (idx >= 0)
 	//	exit(-1);
@@ -133,6 +134,18 @@ void Mesh::set_neighbors()
 				}
 			}
 			if (isFound) break;
+		}
+	}
+}
+void Mesh::set_point_cells()
+{
+	for (int j = 0; j < inner_size; j++)
+	{
+		const auto& el = elems[j];
+		for (int i = 0; i < el.verts_num; i++)
+		{
+			auto& pt = pts[el.verts[i]];
+			pt.cells.push_back(j);
 		}
 	}
 }
